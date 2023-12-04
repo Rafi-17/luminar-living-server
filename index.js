@@ -31,6 +31,10 @@ async function run() {
         const result = await apartmentCollection.find().toArray();
         res.send(result)
     })
+    app.get('/apartmentsCount', async (req, res) => {
+        const count= await apartmentCollection.estimatedDocumentCount();
+        res.send({count});
+    })
 
 
 
