@@ -26,13 +26,16 @@ async function run() {
     await client.connect(); 
 
     const apartmentCollection=client.db("luminarDb").collection("apartment");
+    const requestedAgreementCollection=client.db("luminarDb").collection("requestedAgreement");
+    const acceptedAgreementCollection=client.db("luminarDb").collection("acceptedAgreement");
+    const userCollection=client.db("luminarDb").collection("user");
 
     app.get('/apartments', async (req, res) => {
         const page=parseInt(req.query.page);
         const size=6;
         console.log(req.query);
         const result = await apartmentCollection.find()
-        .skip(page*size)
+        .skip((page-1)*size)
         .limit(size)
         .toArray();
         res.send(result)
@@ -41,6 +44,37 @@ async function run() {
         const count= await apartmentCollection.estimatedDocumentCount();
         res.send({count});
     })
+
+    //requestedAgreementCollection
+    app.get('/agreements', async (req, res) => {
+        const email= req.query.email;
+        const query={email: email};
+        const result = await requestedAgreementCollection.find(query).toArray();
+        res.send(result);
+    })
+    app.post('/agreements', async (req, res) => {
+        const newAgreement = req.body;
+        const result = await requestedAgreementCollection.insertOne(newAgreement);
+        res.send(result);
+    })
+
+    //acceptedAgreementCollection
+
+    //usersCollection
+    app.post('/users',async(req,res)=>{
+        const user= req.body;
+        const query= {email: user.email}
+        const existingUser= await userCollection.findOne(query);
+        if(existingUser){
+            return res.send({message:'user already exists', insertedId:null})
+        }
+        const result= await userCollection.insertOne(user);
+        res.send(result);
+    })
+
+
+
+
 
 
 
