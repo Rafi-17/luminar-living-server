@@ -28,7 +28,13 @@ async function run() {
     const apartmentCollection=client.db("luminarDb").collection("apartment");
 
     app.get('/apartments', async (req, res) => {
-        const result = await apartmentCollection.find().toArray();
+        const page=parseInt(req.query.page);
+        const size=6;
+        console.log(req.query);
+        const result = await apartmentCollection.find()
+        .skip(page*size)
+        .limit(size)
+        .toArray();
         res.send(result)
     })
     app.get('/apartmentsCount', async (req, res) => {
