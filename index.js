@@ -46,13 +46,12 @@ async function run() {
     })
 
     //requestedAgreementCollection
-    app.get('/agreements', async (req, res) => {
-        const email= req.query.email;
-        const query={email: email};
-        const result = await requestedAgreementCollection.find(query).toArray();
+    app.get('/requestedAgreements', async (req, res) => {
+        
+        const result = await requestedAgreementCollection.find().toArray();
         res.send(result);
     })
-    app.post('/agreements', async (req, res) => {
+    app.post('/requestedAgreements', async (req, res) => {
         const newAgreement = req.body;
         const result = await requestedAgreementCollection.insertOne(newAgreement);
         res.send(result);
@@ -61,6 +60,12 @@ async function run() {
     //acceptedAgreementCollection
 
     //usersCollection
+    app.get('/users',async (req, res) =>{
+        const role=req.query.role;
+        const query={role: role}
+        const result=await userCollection.find(query).toArray();
+        res.send(result);
+    })
     app.post('/users',async(req,res)=>{
         const user= req.body;
         const query= {email: user.email}
@@ -69,6 +74,20 @@ async function run() {
             return res.send({message:'user already exists', insertedId:null})
         }
         const result= await userCollection.insertOne(user);
+        res.send(result);
+    })
+
+    app.put('/users/:email',async(req,res)=>{
+        const email=req.params.email;
+        console.log(email);
+        const filter={email: email}
+        const change=req.body;
+        const updatedUser={
+            $set:{
+                role:change.role
+            }
+        }
+        const result= await userCollection.updateOne(filter,updatedUser)
         res.send(result);
     })
 
